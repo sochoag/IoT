@@ -59,6 +59,7 @@ void loop()
       lastMsg = millis();
       String str = "La cuenta es -> " + String(count);
       str.toCharArray(msg,25);
+      Serial.println(str);
       client.publish(root_topic_publish,msg);
       count++;
     }

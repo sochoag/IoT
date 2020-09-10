@@ -3,9 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>IoT Prueba</title>
 </head>
 <body>
+    <h1>IoT 1</h1>
+    <div id="status">Desconectado</div> <br>
+    <div id="display"></div> <br>
+    <button onclick="command(1)" type="button">Encender</button> <br> <br>
+    <button onclick="command(0)" type="button">Apagar</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
     
+    <script type="text/javascript">
+        var clientId = 'client_id' + Math.floor((Math.random()*1000000)+1)
+        console.log(clientId)
+        client = new Paho.MQTT.Client("ioticos.org", 8094, clientId);
+
+        client.onConnectionLost = onConnectionLost;
+        client.onMessageArrived = onMessageArrived;
+        
+        var options = 
+        {
+          useSSL: true,
+          userName: "BG6swRmFMa8RMyz",
+          password: "AyZhgsFitmjMmvC",
+          onSuccess:onConnect,
+          onFailure:doFail
+        }
+
+        client.connect(options);
+
+        function onConnect() 
+        {
+          console.log("Conexión exitosa!!!");
+          $("#status").html("Conexión Establecida");
+          client.subscribe("ZRJuzjMfeOrJ57b/output");
+        }
+
+        function onMessageArrived(message) 
+        {
+          console.log("Un mensaje ha llegado:"+ message.payloadString);
+          $("#display").html(message.payloadString);
+        }
+
+        function doFail(e)
+        {
+          console.log(e);
+        }
+
+        function onConnectionLost(responseObject) 
+        {
+          if (responseObject.errorCode !== 0) 
+          {
+            console.log("onConnectionLost:"+responseObject.errorMessage);
+          }
+        }
+
+        function command(value)
+        {
+          console.log(value);
+          message = new Paho.MQTT.Message(value + "");
+          message.destinationName = "ZRJuzjMfeOrJ57b/input";
+          client.send(message);
+        }
+
+    </script>
 </body>
 </html>
